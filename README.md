@@ -2,54 +2,66 @@
 
 A Model Context Protocol (MCP) server that exposes Ansible Receptor's mesh networking and work execution capabilities to AI applications like Claude Desktop and Claude Code.
 
-## ✅ Phase 1 Complete: MCP Server Implementation
+## 🚧 Current Status: MCP Server Infrastructure
 
-**Status**: Fully functional MCP server with Claude Code integration!
+**Status**: Complete MCP server foundation with placeholder implementations
 
 ### What's Working
 
-- ✅ **Full MCP Protocol Support** - JSON-RPC 2.0 over stdio
-- ✅ **All 7 Receptor Tools** - Available via slash commands in Claude Code
-- ✅ **All 4 Resources** - Real-time data access via @ mentions
-- ✅ **All 3 Prompts** - Guided workflow assistance
-- ✅ **Claude Code Integration** - Native MCP support
-- ✅ **Configuration Management** - YAML-based server configuration
-- ✅ **Comprehensive Testing** - Unit tests and integration validation
+- ✅ **Full MCP Protocol Support** - JSON-RPC 2.0 over stdio implementation
+- ✅ **All 7 Receptor Tools** - Complete tool definitions with placeholder responses
+- ✅ **All 4 Resources** - Resource endpoints with mock data
+- ✅ **All 3 Prompts** - Guided workflow prompts with helpful content
+- ✅ **Configuration System** - YAML-based configuration and CLI arguments
+- ✅ **Project Infrastructure** - Configuration templates, deployment scripts
+- ✅ **Build System** - Go modules, configuration generator tool
 
 ### Current Implementation Status
 
-**Phase 1: Core MCP Server** ✅ **COMPLETE**
-- Full MCP server with placeholder implementations
-- Perfect Claude Code integration via MCP protocol
-- All tools discoverable and executable
-- Ready for Phase 2 real Receptor integration
+**Phase 1: MCP Server Foundation** ✅ **COMPLETE**
+- Functional MCP server that can integrate with Claude Desktop/Code
+- All 7 tools, 4 resources, and 3 prompts implemented with placeholders
+- Real MCP protocol communication working
+- Ready for Phase 2: Real Receptor integration
 
 ## Quick Start
 
-### Claude Code Integration
+### Building and Using the MCP Server
 
-1. **Add the MCP Server**:
+1. **Build the Server**:
 ```bash
-claude mcp add receptor /path/to/receptor-mcp/bin/receptor-mcp-server --debug
+# Build the MCP server binary
+go build -o bin/receptor-mcp-server ./cmd/receptor-mcp-server/
 ```
 
-2. **Verify Integration**:
+2. **Test Basic Functionality**:
 ```bash
-claude mcp list
-# Should show: receptor: ... - ✓ Connected
+# Check version and help
+./bin/receptor-mcp-server --version
+./bin/receptor-mcp-server --help
 ```
 
-3. **Use Receptor Tools**:
-   - `/mcp__receptor__list_nodes` - List mesh nodes
-   - `/mcp__receptor__submit_work` - Submit work to nodes
-   - `/mcp__receptor__get_mesh_status` - Get mesh health
-   - And 4 more tools...
+3. **Configure for Claude Desktop**:
+   Edit your Claude Desktop config file to include:
+```json
+{
+  "mcpServers": {
+    "receptor": {
+      "command": "/full/path/to/receptor-mcp/bin/receptor-mcp-server",
+      "args": ["--config", "/full/path/to/receptor-mcp.yaml", "--debug"]
+    }
+  }
+}
+```
 
-4. **Access Resources**:
-   - `@receptor:receptor://mesh/topology` - Mesh topology data
-   - `@receptor:receptor://nodes/status` - Node status info
-   - `@receptor:receptor://work/queue` - Work queue status
-   - `@receptor:receptor://work/history` - Historical data
+4. **Available Tools** (with placeholder responses):
+   - `submit_work` - Submit work to nodes
+   - `get_work_status` - Check work status
+   - `list_nodes` - List mesh nodes
+   - `get_node_info` - Get node details
+   - `get_mesh_status` - Get mesh health
+   - `cancel_work` - Cancel work
+   - `get_work_results` - Get work results
 
 ### Building and Testing
 
@@ -57,27 +69,19 @@ claude mcp list
 # Build the MCP server
 go build -o bin/receptor-mcp-server ./cmd/receptor-mcp-server/
 
-# Run tests
+# Build the configuration generator
+go build -o bin/receptor-config-gen ./tools/receptor-config-gen/
+
+# Run unit tests
 go test ./pkg/mcp/
 
-# Test MCP handshake
-./test-mcp-handshake.sh
+# Test basic server functionality
+./bin/receptor-mcp-server --version
 ```
 
 ### Claude Desktop Integration
 
-Copy contents of `claude_desktop_config.json` to your Claude Desktop config:
-
-```json
-{
-  "mcpServers": {
-    "receptor": {
-      "command": "/path/to/receptor-mcp/bin/receptor-mcp-server",
-      "args": ["--config", "/path/to/receptor-mcp.yaml", "--debug"]
-    }
-  }
-}
-```
+The `claude_desktop_config.json` file contains the template configuration.
 
 ## Project Structure
 
@@ -85,21 +89,29 @@ Copy contents of `claude_desktop_config.json` to your Claude Desktop config:
 receptor-mcp/
 ├── cmd/
 │   └── receptor-mcp-server/   # Main MCP server application
+│       └── main.go
 ├── pkg/
 │   └── mcp/                   # MCP protocol implementation
+│       ├── server.go          # MCP server implementation
+│       ├── server_test.go     # Unit tests
+│       └── types.go           # MCP protocol types
 ├── configs/                   # Receptor configuration templates  
-│   ├── dev/                   # Development environments
-│   ├── prod/                  # Production environments
-│   └── work-types/            # AI-optimized work definitions
-├── deploy/                    # Deployment files
-│   ├── docker-compose.*.yaml # Docker Compose configurations
+│   ├── dev/                   # Development environments (4 templates)
+│   ├── prod/                  # Production environments (3 templates)
+│   └── work-types/            # AI-optimized work definitions (4 types)
+├── deploy/                    # Deployment infrastructure
+│   ├── Dockerfile.mcp-server  # Docker image for MCP server
+│   ├── docker-compose.*.yaml # Docker Compose configurations (3 files)
 │   └── setup.sh              # Automated setup script
 ├── tools/
 │   └── receptor-config-gen/   # Configuration generator CLI
-├── bin/                       # Built binaries (gitignored)
+│       ├── main.go            # Generator implementation
+│       ├── go.mod             # Go module for generator
+│       └── go.sum             # Dependencies
+├── go.mod                     # Main Go module
+├── go.sum                     # Dependencies
 ├── receptor-mcp.yaml          # MCP server configuration
-├── claude_desktop_config.json # Claude Desktop integration template
-└── test-mcp-handshake.sh     # MCP integration test script
+└── claude_desktop_config.json # Claude Desktop integration template
 ```
 
 ## MCP Server Capabilities
@@ -160,52 +172,51 @@ go build -o bin/receptor-config-gen ./tools/receptor-config-gen/
 ## Testing
 
 ```bash
-# Run all tests
-./test-all.sh
-
-# Unit tests only
+# Unit tests
 go test ./pkg/mcp/
 
-# Test MCP handshake
-./test-mcp-handshake.sh
+# Build tests
+go build ./cmd/receptor-mcp-server/
+go build ./tools/receptor-config-gen/
+
+# Configuration validation
+python3 -c "import yaml; yaml.safe_load(open('receptor-mcp.yaml', 'r')); print('✅ Config valid')"
 ```
 
-## Example Workflows in Claude Code
+## Example Usage with Claude Desktop
 
-### Basic Mesh Operations
-```
-/mcp__receptor__list_nodes
-/mcp__receptor__get_mesh_status
-@receptor:receptor://mesh/topology
-```
+Once configured in Claude Desktop, you can use these tools:
 
-### Work Submission and Monitoring
-```
-/mcp__receptor__submit_work node_id=worker-01 work_type=ai-script payload="print('Hello Receptor!')"
-/mcp__receptor__get_work_status work_id=work_123456
-/mcp__receptor__get_work_results work_id=work_123456
-```
+### Basic Operations (Placeholder Responses)
+- **List Nodes**: Get list of mesh nodes with mock data
+- **Mesh Status**: Get overall mesh health information  
+- **Node Info**: Get detailed information about specific nodes
 
-### Guided Workflows
-```
-/mcp__receptor__deploy_workflow workflow_type=ai-pipeline
-/mcp__receptor__troubleshoot_mesh issue_type=connectivity
-/mcp__receptor__optimize_workload
-```
+### Work Management (Placeholder Responses)
+- **Submit Work**: Submit work with mock work_id response
+- **Work Status**: Check status of submitted work
+- **Work Results**: Retrieve completed work results
+- **Cancel Work**: Cancel running work
+
+### Resources (Mock Data)
+- `receptor://mesh/topology` - Mock mesh topology
+- `receptor://nodes/status` - Mock node status data
+- `receptor://work/queue` - Mock work queue information
+- `receptor://work/history` - Mock historical data
 
 ## Current Status and Next Steps
 
-### Phase 1: ✅ Complete
-- Full MCP server implementation
-- Claude Code integration working
-- All tools, resources, and prompts functional
-- Placeholder responses for all operations
+### ✅ Current Status: Foundation Complete
+- Complete MCP server with placeholder implementations
+- All 7 tools, 4 resources, 3 prompts implemented
+- Configuration system and deployment infrastructure
+- Ready for integration with actual Receptor instances
 
-### Phase 2: 🚧 Next Steps  
-- Real Receptor integration via Unix sockets
-- Live data from actual Receptor instances
-- Dynamic resource updates
-- Production deployment capabilities
+### 🚧 Next Steps: Real Receptor Integration
+- Replace placeholder responses with actual Receptor API calls
+- Implement Unix socket communication with Receptor control service
+- Add real-time data from live Receptor mesh networks
+- Production deployment and monitoring capabilities
 
 ## Development
 
@@ -223,19 +234,21 @@ go build -o bin/receptor-mcp-server ./cmd/receptor-mcp-server/
 go build -o bin/receptor-config-gen ./tools/receptor-config-gen/
 ```
 
-## Management Commands
+## Important Notes
 
-```bash
-# MCP server management
-claude mcp list                    # List all MCP servers
-claude mcp get receptor            # Get receptor server details
-claude mcp remove receptor -s local # Remove the server
+- **This is foundation infrastructure** - The MCP server provides placeholder responses
+- **Real Receptor integration not yet implemented** - Tools return mock data
+- **Ready for development** - All MCP protocol features working correctly
+- **Configuration system complete** - Templates and deployment ready
 
-# Test server directly
-./bin/receptor-mcp-server --version
-./bin/receptor-mcp-server --help
-```
+## Next Development Phase
+
+To complete the Receptor integration:
+1. Implement Receptor Unix socket client in `pkg/mcp/server.go`
+2. Replace placeholder handlers with real Receptor API calls
+3. Add error handling for Receptor connection failures
+4. Test with actual Receptor mesh instances
 
 ---
 
-**Status**: Phase 1 Complete ✅ - Ready for Phase 2 Implementation 🚀
+**Status**: MCP Foundation Complete ✅ - Ready for Receptor Integration 🚀
