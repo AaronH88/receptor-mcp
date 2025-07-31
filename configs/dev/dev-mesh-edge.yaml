@@ -1,0 +1,65 @@
+---
+# Development Edge Node Configuration
+# Edge node for IoT, sensors, and lightweight processing tasks
+#
+# Usage: receptor --config dev-mesh-edge.yaml
+# Note: Update node id and controller address for each edge instance
+
+# Node identification (customize for each edge node)
+- node:
+    id: edge1
+
+# Warning level logging to reduce edge resource usage
+- log-level:
+    level: warning
+
+# Connect to controller node
+- tcp-peer:
+    address: controller:8901
+
+# Local control service (minimal permissions)
+- control-service:
+    service: control
+    filename: /tmp/receptor/edge1.sock
+    permissions: 0600
+
+# Edge-specific work types optimized for resource constraints
+- work-command:
+    worktype: sensor-data
+    command: /usr/bin/collect-sensor-data.sh
+    allowruntimeparams: true
+    description: "Collect sensor data and telemetry information"
+
+- work-command:
+    worktype: edge-inference
+    command: /usr/bin/edge-inference.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Run lightweight ML inference on edge devices"
+
+- work-command:
+    worktype: data-relay
+    command: /usr/bin/data-relay.sh
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Relay data to other nodes in the mesh"
+
+- work-command:
+    worktype: local-processing
+    command: /usr/bin/local-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Process data locally before forwarding"
+
+- work-command:
+    worktype: edge-health
+    command: /usr/bin/edge-health.sh
+    allowruntimeparams: false
+    description: "Report edge node health and resource constraints"
+
+- work-command:
+    worktype: iot-gateway
+    command: /usr/bin/iot-gateway.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Act as IoT gateway for device communication"

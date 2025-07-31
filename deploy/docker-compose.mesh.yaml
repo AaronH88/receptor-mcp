@@ -1,0 +1,173 @@
+version: '3.8'
+
+# Development Mesh Environment Docker Compose
+# Multi-node Receptor mesh with MCP server access
+
+services:
+  # Controller Node with MCP Server Access
+  receptor-controller:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-controller
+    hostname: controller
+    ports:
+      - "8901:8901"  # Mesh TCP listener
+      - "8888:8888"  # MCP server access
+    volumes:
+      - ./configs/dev/dev-mesh-controller.yaml:/etc/receptor/receptor.conf:ro
+      - ./scripts:/usr/local/bin:ro
+      - controller-sockets:/tmp/receptor
+      - controller-work:/var/lib/receptor/work
+    command: receptor --config /etc/receptor/receptor.conf
+    networks:
+      - receptor-mesh
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=1
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/tmp/receptor/controller.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Worker Node 1
+  receptor-worker1:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-worker1
+    hostname: worker1
+    ports:
+      - "8902:8902"  # Worker TCP listener
+    volumes:
+      - ./configs/dev/dev-mesh-worker.yaml:/etc/receptor/receptor.conf:ro
+      - ./scripts:/usr/local/bin:ro
+      - worker1-sockets:/tmp/receptor
+      - worker1-work:/var/lib/receptor/work
+    command: receptor --config /etc/receptor/receptor.conf
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-mesh
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=1
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/tmp/receptor/worker1.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Worker Node 2
+  receptor-worker2:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-worker2
+    hostname: worker2
+    ports:
+      - "8903:8902"  # Worker TCP listener (mapped to different host port)
+    volumes:
+      - ./configs/dev/dev-mesh-worker.yaml:/etc/receptor/receptor.conf:ro
+      - ./scripts:/usr/local/bin:ro
+      - worker2-sockets:/tmp/receptor
+      - worker2-work:/var/lib/receptor/work
+    command: receptor --config /etc/receptor/receptor.conf
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-mesh
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=1
+      - RECEPTOR_NODE_ID=worker2  # Override node ID
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/tmp/receptor/worker1.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Edge Node
+  receptor-edge1:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-edge1
+    hostname: edge1
+    volumes:
+      - ./configs/dev/dev-mesh-edge.yaml:/etc/receptor/receptor.conf:ro
+      - ./scripts:/usr/local/bin:ro
+      - edge1-sockets:/tmp/receptor
+      - edge1-work:/var/lib/receptor/work
+    command: receptor --config /etc/receptor/receptor.conf
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-mesh
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=0  # Minimal logging for edge
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/tmp/receptor/edge1.sock", "status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  # MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-server
+    container_name: receptor-mcp-server
+    depends_on:
+      - receptor-controller
+    volumes:
+      - ./configs/mcp-server-mesh.yaml:/etc/mcp-server/config.yaml:ro
+      - controller-sockets:/tmp/receptor:ro
+    command: receptor-mcp-server --config /etc/mcp-server/config.yaml
+    networks:
+      - receptor-mesh
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "receptor-mcp-server", "--health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring and Visualization (Optional)
+  receptor-monitor:
+    image: python:3.11-slim
+    container_name: receptor-monitor
+    volumes:
+      - ./monitoring:/app:ro
+      - controller-sockets:/tmp/receptor:ro
+    working_dir: /app
+    command: python mesh-monitor.py
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-mesh
+    ports:
+      - "8080:8080"  # Web UI for mesh visualization
+    environment:
+      - FLASK_ENV=development
+
+volumes:
+  controller-sockets:
+    driver: local
+  controller-work:
+    driver: local
+  worker1-sockets:
+    driver: local
+  worker1-work:
+    driver: local
+  worker2-sockets:
+    driver: local
+  worker2-work:
+    driver: local
+  edge1-sockets:
+    driver: local
+  edge1-work:
+    driver: local
+
+networks:
+  receptor-mesh:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

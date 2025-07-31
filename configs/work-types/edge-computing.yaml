@@ -1,0 +1,129 @@
+# Edge Computing Work Type Definitions
+# Specialized work types for edge nodes, IoT, and resource-constrained environments
+# Optimized for minimal resource usage and offline operation
+
+# Sensor Data Collection
+- work-command:
+    worktype: sensor-collect
+    command: /usr/bin/sensor-collector.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Collect data from connected sensors and IoT devices"
+
+# Edge ML Inference
+- work-command:
+    worktype: edge-inference
+    command: /usr/bin/edge-inference.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Run lightweight ML inference on edge devices"
+
+# Local Data Processing
+- work-command:
+    worktype: local-processing
+    command: /usr/bin/local-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Process data locally before transmission to reduce bandwidth"
+
+# Data Buffering and Caching
+- work-command:
+    worktype: data-buffer
+    command: /usr/bin/data-buffer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Buffer and cache data for reliable transmission"
+
+# IoT Gateway Operations
+- work-command:
+    worktype: iot-gateway
+    command: /usr/bin/iot-gateway.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Act as gateway between IoT devices and central systems"
+
+# Edge Analytics
+- work-command:
+    worktype: edge-analytics
+    command: /usr/bin/edge-analytics.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Perform analytics on edge data for immediate insights"
+
+# Device Management
+- work-command:
+    worktype: device-management
+    command: /usr/bin/device-manager.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Manage connected IoT devices and their configurations"
+
+# Edge Storage Management
+- work-command:
+    worktype: edge-storage
+    command: /usr/bin/edge-storage-manager.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Manage local storage and data retention on edge devices"
+
+# Connectivity Testing
+- work-command:
+    worktype: connectivity-test
+    command: /usr/bin/connectivity-tester.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Test network connectivity and quality metrics"
+
+# Edge Security Monitoring
+- work-command:
+    worktype: edge-security-monitor
+    command: /usr/bin/edge-security-monitor.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Monitor edge device security status and threats"
+
+# Firmware/Software Updates
+- work-command:
+    worktype: edge-update
+    command: /usr/bin/edge-updater.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Update edge device firmware and software securely"
+
+# Edge Resource Monitoring
+- work-command:
+    worktype: edge-resource-monitor
+    command: /usr/bin/edge-resource-monitor.py
+    allowruntimeparams: false
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Monitor edge device resource usage and health"
+
+# Data Compression
+- work-command:
+    worktype: data-compression
+    command: /usr/bin/data-compressor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Compress data for efficient transmission and storage"
+
+# Edge Alerting
+- work-command:
+    worktype: edge-alerting
+    command: /usr/bin/edge-alerting.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Generate and manage alerts based on edge conditions"

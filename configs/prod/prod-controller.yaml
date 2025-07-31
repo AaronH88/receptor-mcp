@@ -1,0 +1,105 @@
+---
+# Production Controller Node Configuration
+# Secure controller node with TLS, work signing, and MCP server access
+#
+# Usage: receptor --config prod-controller.yaml
+# Prerequisites: 
+#   - TLS certificates in /etc/receptor/certs/
+#   - Work signing key in /etc/receptor/keys/
+#   - MCP server certificates configured
+
+# Node identification
+- node:
+    id: prod-controller
+
+# Production logging level
+- log-level:
+    level: info
+
+# Secure TLS configuration for mesh communications
+- tls-server:
+    name: mesh-tls
+    cert: /etc/receptor/certs/server.crt
+    key: /etc/receptor/certs/server.key
+    clientcas: /etc/receptor/certs/ca.crt
+    requireclientcert: true
+
+# TCP listener with TLS for secure mesh connections
+- tcp-listener:
+    port: 8901
+    tls: mesh-tls
+
+# Secure control service with MCP server access
+- control-service:
+    service: control
+    filename: /var/run/receptor/control.sock
+    permissions: 0660
+    # TCP access for MCP server with TLS
+    tcplisten: "127.0.0.1:8888"
+    tcptls: mcp-server-tls
+
+# TLS configuration for MCP server connections
+- tls-server:
+    name: mcp-server-tls
+    cert: /etc/receptor/certs/mcp-server.crt
+    key: /etc/receptor/certs/mcp-server.key
+    clientcas: /etc/receptor/certs/ca.crt
+    requireclientcert: true
+
+# Work signing for secure execution
+- work-signing:
+    privatekey: /etc/receptor/keys/work-signing.key
+    tokenexpiration: 1h
+
+# Administrative work types with security verification
+- work-command:
+    worktype: admin-health-check
+    command: /usr/bin/health-check.sh
+    allowruntimeparams: false
+    verifysignature: true
+    description: "Comprehensive system health check with admin privileges"
+
+- work-command:
+    worktype: mesh-topology
+    command: /usr/bin/generate-topology.py
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Generate detailed mesh topology and routing analysis"
+
+- work-command:
+    worktype: security-audit
+    command: /usr/bin/security-audit.py
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Perform security audit of mesh and node configurations"
+
+- work-command:
+    worktype: backup-orchestration
+    command: /usr/bin/backup-orchestrator.py
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Orchestrate backup operations across the mesh"
+
+- work-command:
+    worktype: deployment-coordinator
+    command: /usr/bin/deployment-coordinator.py
+    allowruntimeparams: true
+    verifysignature: true
+    allowruntimestdin: true
+    description: "Coordinate application deployments across worker nodes"
+
+- work-command:
+    worktype: monitoring-aggregator
+    command: /usr/bin/monitoring-aggregator.py
+    allowruntimeparams: true
+    verifysignature: false
+    description: "Aggregate monitoring data from all mesh nodes"
+
+- work-command:
+    worktype: ai-workflow-orchestrator
+    command: /usr/bin/ai-workflow-orchestrator.py
+    allowruntimeparams: true
+    verifysignature: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    description: "Orchestrate complex AI workflows across the production mesh"

@@ -1,0 +1,65 @@
+---
+# Development Mesh Controller Node Configuration
+# Central controller node with MCP server access and management capabilities
+#
+# Usage: receptor --config dev-mesh-controller.yaml
+
+# Node identification
+- node:
+    id: controller
+
+# Info level logging for controller
+- log-level:
+    level: info
+
+# TCP listener for mesh connections
+- tcp-listener:
+    port: 8901
+
+# Control service with MCP server access
+- control-service:
+    service: control
+    filename: /tmp/receptor/controller.sock
+    permissions: 0660
+    # Enable TCP access for MCP server
+    tcplisten: "127.0.0.1:8888"
+
+# Management and coordination work types
+- work-command:
+    worktype: mesh-status
+    command: /usr/bin/mesh-status.sh
+    allowruntimeparams: false
+    description: "Generate comprehensive mesh status report"
+
+- work-command:
+    worktype: node-health-check
+    command: /usr/bin/node-health.sh
+    allowruntimeparams: true
+    description: "Check health status of specific nodes in the mesh"
+
+- work-command:
+    worktype: distribute-work
+    command: /usr/bin/work-distributor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Distribute work across multiple nodes with coordination"
+
+- work-command:
+    worktype: collect-metrics
+    command: /usr/bin/metrics-collector.py
+    allowruntimeparams: true
+    description: "Collect performance metrics from mesh nodes"
+
+- work-command:
+    worktype: ai-orchestration
+    command: /usr/bin/ai-orchestrator.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    description: "Orchestrate AI workflows across the mesh"
+
+- work-command:
+    worktype: mesh-topology
+    command: /usr/bin/topology-analyzer.py
+    allowruntimeparams: false
+    description: "Analyze and report mesh network topology"

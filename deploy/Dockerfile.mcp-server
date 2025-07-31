@@ -1,0 +1,63 @@
+# Dockerfile for Receptor MCP Server
+FROM golang:1.21-alpine AS builder
+
+# Set build arguments
+ARG BUILD_ENV=development
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates tzdata
+
+# Create app directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the MCP server
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-w -s -X main.version=$(cat VERSION)" \
+    -o receptor-mcp-server \
+    ./cmd/mcp-server
+
+# Final stage
+FROM alpine:latest
+
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates tzdata
+
+# Create non-root user
+RUN addgroup -g 1001 -S mcp && \
+    adduser -u 1001 -S mcp -G mcp
+
+# Create directories
+RUN mkdir -p /etc/mcp-server /var/log/mcp-server /tmp/mcp-server && \
+    chown -R mcp:mcp /etc/mcp-server /var/log/mcp-server /tmp/mcp-server
+
+# Copy binary from builder stage
+COPY --from=builder /app/receptor-mcp-server /usr/local/bin/
+
+# Copy default configuration
+COPY configs/mcp-server.yaml /etc/mcp-server/config.yaml.example
+
+# Set permissions
+RUN chmod +x /usr/local/bin/receptor-mcp-server
+
+# Switch to non-root user
+USER mcp
+
+# Expose ports (if needed for TCP mode)
+EXPOSE 8889
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD receptor-mcp-server --health-check || exit 1
+
+# Default command
+ENTRYPOINT ["receptor-mcp-server"]
+CMD ["--config", "/etc/mcp-server/config.yaml"]

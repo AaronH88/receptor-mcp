@@ -1,0 +1,71 @@
+---
+# Development Mesh Worker Node Configuration
+# Worker node template for mesh participation and task execution
+#
+# Usage: receptor --config dev-mesh-worker.yaml
+# Note: Update node id and controller address for each worker instance
+
+# Node identification (customize for each worker)
+- node:
+    id: {{.WorkerID}}
+
+# Debug logging for development
+- log-level:
+    level: debug
+
+# Connect to controller node
+- tcp-peer:
+    address: {{.ControllerAddress}}:8901
+
+# Optional: Listen for direct connections from other nodes
+- tcp-listener:
+    port: 8902
+
+# Local control service
+- control-service:
+    service: control
+    filename: /tmp/receptor/{{.WorkerID}}.sock
+    permissions: 0660
+
+# Compute and processing work types
+- work-command:
+    worktype: compute-task
+    command: /usr/bin/compute-worker.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Execute computational tasks with flexible input"
+
+- work-command:
+    worktype: data-processing
+    command: /usr/bin/data-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Process data streams and files"
+
+- work-command:
+    worktype: ml-inference
+    command: /usr/bin/ml-inference.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Run machine learning inference tasks"
+
+- work-command:
+    worktype: batch-job
+    command: /usr/bin/batch-processor.sh
+    allowruntimeparams: true
+    allowruntimestdin: false
+    description: "Execute batch processing jobs"
+
+- work-command:
+    worktype: worker-health
+    command: /usr/bin/worker-health.sh
+    allowruntimeparams: false
+    description: "Report worker node health and resource status"
+
+- work-command:
+    worktype: ai-worker-task
+    command: /usr/bin/ai-worker.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    description: "Generic AI worker task with maximum flexibility"

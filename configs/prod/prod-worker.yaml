@@ -1,0 +1,109 @@
+---
+# Production Worker Node Configuration Template
+# Secure worker node with TLS client authentication and work verification
+#
+# Usage: receptor --config prod-worker.yaml
+# Template variables (replace before use):
+#   - {{ .WorkerID }}: Unique worker identifier
+#   - {{ .ControllerAddress }}: Controller node hostname/IP
+# Prerequisites:
+#   - TLS client certificates in /etc/receptor/certs/
+#   - Work verification public key in /etc/receptor/keys/
+
+# Node identification (template variable)
+- node:
+    id: prod-worker-{{ .WorkerID }}
+
+# Production logging (reduced verbosity for workers)
+- log-level:
+    level: warning
+
+# Secure TLS client configuration
+- tls-client:
+    name: mesh-client
+    cert: /etc/receptor/certs/client.crt
+    key: /etc/receptor/certs/client.key
+    rootcas: /etc/receptor/certs/ca.crt
+
+# Secure connection to controller (template variable)
+- tcp-peer:
+    address: {{ .ControllerAddress }}:8901
+    tls: mesh-client
+
+# Local control service (no external access)
+- control-service:
+    service: control
+    filename: /var/run/receptor/control.sock
+    permissions: 0660
+
+# Work verification for security (verify signatures from controller)
+- work-verification:
+    publickey: /etc/receptor/keys/work-signing.pub
+
+# Production work types with appropriate security levels
+- work-command:
+    worktype: application-deploy
+    command: /usr/bin/deploy-application.sh
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Deploy applications with security verification"
+
+- work-command:
+    worktype: backup-task
+    command: /usr/bin/backup-runner.py
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Execute backup tasks for data protection"
+
+- work-command:
+    worktype: monitoring-collect
+    command: /usr/bin/collect-metrics.sh
+    allowruntimeparams: false
+    verifysignature: false
+    description: "Collect system and application metrics"
+
+- work-command:
+    worktype: log-processing
+    command: /usr/bin/log-processor.py
+    allowruntimeparams: true
+    verifysignature: false
+    allowruntimestdin: true
+    description: "Process and analyze log files"
+
+- work-command:
+    worktype: data-processing
+    command: /usr/bin/secure-data-processor.py
+    allowruntimeparams: true
+    verifysignature: true
+    allowruntimestdin: true
+    description: "Process sensitive data with security verification"
+
+- work-command:
+    worktype: ml-training
+    command: /usr/bin/ml-training.py
+    allowruntimeparams: true
+    verifysignature: true
+    allowruntimestdin: true
+    description: "Execute machine learning training tasks"
+
+- work-command:
+    worktype: ml-inference
+    command: /usr/bin/ml-inference.py
+    allowruntimeparams: true
+    verifysignature: false
+    allowruntimestdin: true
+    description: "Run machine learning inference (non-sensitive)"
+
+- work-command:
+    worktype: system-maintenance
+    command: /usr/bin/system-maintenance.sh
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Perform system maintenance tasks"
+
+- work-command:
+    worktype: worker-health
+    command: /usr/bin/worker-health.sh
+    allowruntimeparams: false
+    verifysignature: false
+    description: "Report worker health and resource status"

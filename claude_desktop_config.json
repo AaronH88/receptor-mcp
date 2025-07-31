@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "receptor": {
+      "command": "/Users/ahetheri/ai_workarea/receptor-mcp/receptor-mcp/bin/receptor-mcp-server",
+      "args": [
+        "--config", "/Users/ahetheri/ai_workarea/receptor-mcp/receptor-mcp/receptor-mcp.yaml",
+        "--debug"
+      ],
+      "env": {
+        "RECEPTOR_MCP_DEBUG": "true"
+      }
+    }
+  }
+}

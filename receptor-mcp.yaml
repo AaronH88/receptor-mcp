@@ -1,0 +1,59 @@
+# Receptor MCP Server Configuration
+
+# Debug logging
+debug: false
+
+# Receptor connection settings
+receptor:
+  # Path to Receptor control socket
+  socket: "/tmp/receptor/receptor.sock"
+  
+  # List of Receptor nodes to connect to
+  nodes:
+    - "localhost"
+    - "controller"
+  
+  # Default timeout for Receptor operations (seconds)
+  timeout: 30
+  
+  # Verify TLS certificates for Receptor connections
+  tls_verify: true
+
+# Server settings
+server:
+  # Server name shown to MCP clients
+  name: "receptor-mcp-server"
+  
+  # Server version
+  version: "1.0.0"
+  
+  # Enable additional logging for MCP protocol
+  log_protocol: false
+
+# Tool-specific configuration
+tools:
+  # Maximum number of concurrent work submissions
+  max_concurrent_work: 10
+  
+  # Default work timeout (seconds)
+  default_work_timeout: 300
+  
+  # Enable work result caching
+  cache_results: true
+  
+  # Result cache TTL (seconds)
+  cache_ttl: 3600
+
+# Resource update intervals (seconds)
+resources:
+  # How often to refresh mesh topology
+  topology_refresh: 30
+  
+  # How often to refresh node status
+  node_status_refresh: 10
+  
+  # How often to refresh work queue
+  work_queue_refresh: 5
+  
+  # Maximum work history entries to retain
+  max_history_entries: 1000

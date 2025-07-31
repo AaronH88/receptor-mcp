@@ -1,0 +1,65 @@
+---
+# Development Single Node Configuration
+# Optimized for MCP server integration and AI development workflows
+#
+# Usage: receptor --config dev-single-node.yaml
+
+# Node identification
+- node:
+    id: dev-node
+
+# Debug logging for development
+- log-level:
+    level: debug
+
+# Control service with MCP server access
+- control-service:
+    service: control
+    filename: /tmp/receptor/dev-control.sock
+    permissions: 0660
+    # Enable TCP access for MCP server
+    tcplisten: "127.0.0.1:8888"
+
+# AI-optimized work types for development and testing
+- work-command:
+    worktype: echo-test
+    command: echo
+    allowruntimeparams: true
+    description: "Simple echo command for testing MCP integration"
+
+- work-command:
+    worktype: system-info
+    command: /bin/uname
+    params: -a
+    allowruntimeparams: false
+    description: "Collect basic system information"
+
+- work-command:
+    worktype: ai-script
+    command: /usr/bin/python3
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    description: "Execute Python scripts with flexible parameters for AI workflows"
+
+- work-command:
+    worktype: shell-command
+    command: /bin/bash
+    params: -c
+    allowruntimeparams: true
+    allowruntimestdin: false
+    description: "Execute shell commands for system administration tasks"
+
+- work-command:
+    worktype: file-operations
+    command: /usr/bin/file-handler.sh
+    allowruntimeparams: true
+    allowruntimestdin: true
+    description: "Handle file operations like reading, writing, and processing"
+
+- work-command:
+    worktype: network-test
+    command: /usr/bin/network-diagnostic.sh
+    allowruntimeparams: true
+    allowruntimestdin: false
+    description: "Network connectivity and diagnostic tools"

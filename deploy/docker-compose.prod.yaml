@@ -1,0 +1,177 @@
+version: '3.8'
+
+# Production Environment Docker Compose
+# Secure Receptor mesh with TLS, work signing, and production-ready MCP server
+
+services:
+  # Production Controller with Security
+  receptor-controller:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-prod-controller
+    hostname: prod-controller
+    ports:
+      - "8901:8901"  # Secure mesh TCP listener
+      - "8888:8888"  # Secure MCP server access
+    volumes:
+      - ./configs/prod/prod-controller.yaml:/etc/receptor/receptor.conf:ro
+      - ./certs:/etc/receptor/certs:ro
+      - ./keys:/etc/receptor/keys:ro
+      - ./scripts:/usr/local/bin:ro
+      - controller-sockets:/var/run/receptor
+      - controller-work:/var/lib/receptor/work
+      - controller-logs:/var/log/receptor
+    command: receptor --config /etc/receptor/receptor.conf
+    networks:
+      - receptor-prod
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=0  # Production logging
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/var/run/receptor/control.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Production Worker Nodes (scaled via docker-compose scale)
+  receptor-worker:
+    image: quay.io/ansible/receptor:latest
+    hostname: prod-worker
+    volumes:
+      - ./configs/prod/prod-worker.yaml:/etc/receptor/receptor.conf:ro
+      - ./certs:/etc/receptor/certs:ro
+      - ./keys:/etc/receptor/keys:ro
+      - ./scripts:/usr/local/bin:ro
+      - worker-work:/var/lib/receptor/work
+      - worker-logs:/var/log/receptor
+    command: receptor --config /etc/receptor/receptor.conf
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-prod
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=0
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/var/run/receptor/control.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # Production MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-server
+      args:
+        - BUILD_ENV=production
+    container_name: receptor-mcp-server-prod
+    depends_on:
+      - receptor-controller
+    volumes:
+      - ./configs/mcp-server-prod.yaml:/etc/mcp-server/config.yaml:ro
+      - ./certs:/etc/mcp-server/certs:ro
+      - controller-sockets:/var/run/receptor:ro
+      - mcp-logs:/var/log/mcp-server
+    command: receptor-mcp-server --config /etc/mcp-server/config.yaml
+    networks:
+      - receptor-prod
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+      - ENVIRONMENT=production
+    healthcheck:
+      test: ["CMD", "receptor-mcp-server", "--health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+
+  # Log Aggregation (Optional but recommended for production)
+  log-aggregator:
+    image: fluent/fluent-bit:latest
+    container_name: receptor-log-aggregator
+    volumes:
+      - ./logging/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - controller-logs:/var/log/receptor/controller:ro
+      - worker-logs:/var/log/receptor/worker:ro
+      - mcp-logs:/var/log/mcp-server:ro
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-prod
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+
+  # Health Monitoring (Optional)
+  health-monitor:
+    image: prom/prometheus:latest
+    container_name: receptor-health-monitor
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - receptor-controller
+    networks:
+      - receptor-prod
+    ports:
+      - "9090:9090"  # Prometheus web UI (for internal monitoring only)
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+
+volumes:
+  controller-sockets:
+    driver: local
+  controller-work:
+    driver: local
+  controller-logs:
+    driver: local
+  worker-work:
+    driver: local
+  worker-logs:
+    driver: local
+  mcp-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+
+networks:
+  receptor-prod:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: receptor-prod

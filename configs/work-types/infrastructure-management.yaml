@@ -1,0 +1,111 @@
+# Infrastructure Management Work Type Definitions
+# Work types for system administration, monitoring, and automation
+# Designed to be AI-friendly with structured inputs/outputs
+
+# System Information Collection
+- work-command:
+    worktype: system-inventory
+    command: /usr/bin/system-inventory.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Collect comprehensive system information in structured format"
+
+# Log Analysis and Processing
+- work-command:
+    worktype: log-analysis
+    command: /usr/bin/log-analyzer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Analyze log files and extract relevant information"
+
+# Configuration Validation
+- work-command:
+    worktype: config-validate
+    command: /usr/bin/config-validator.sh
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: true
+    description: "Validate system and application configurations"
+
+# Performance Monitoring
+- work-command:
+    worktype: performance-monitor
+    command: /usr/bin/performance-monitor.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Monitor system performance and resource utilization"
+
+# Health Check Execution
+- work-command:
+    worktype: health-check
+    command: /usr/bin/health-checker.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Perform comprehensive health checks on systems and services"
+
+# Security Scanning
+- work-command:
+    worktype: security-scan
+    command: /usr/bin/security-scanner.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Scan for security vulnerabilities and compliance issues"
+
+# Network Diagnostics
+- work-command:
+    worktype: network-diagnostic
+    command: /usr/bin/network-diagnostic.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Diagnose network connectivity and performance issues"
+
+# Backup Operations
+- work-command:
+    worktype: backup-operation
+    command: /usr/bin/backup-operator.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Perform backup operations with verification"
+
+# Deployment Tasks
+- work-command:
+    worktype: deployment-task
+    command: /usr/bin/deployment-handler.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: true
+    description: "Handle application and configuration deployments"
+
+# Maintenance Operations
+- work-command:
+    worktype: maintenance-operation
+    command: /usr/bin/maintenance-handler.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Perform system maintenance and cleanup operations"
+
+# Resource Monitoring
+- work-command:
+    worktype: resource-monitor
+    command: /usr/bin/resource-monitor.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Monitor resource usage and availability"
+
+# Event Processing
+- work-command:
+    worktype: event-processor
+    command: /usr/bin/event-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Process system and application events"

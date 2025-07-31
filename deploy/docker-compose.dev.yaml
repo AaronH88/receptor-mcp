@@ -1,0 +1,78 @@
+version: '3.8'
+
+# Development Environment Docker Compose
+# Single node Receptor + MCP server for development and testing
+
+services:
+  receptor-dev:
+    image: quay.io/ansible/receptor:latest
+    container_name: receptor-dev
+    hostname: receptor-dev
+    ports:
+      - "8888:8888"  # MCP server access
+    volumes:
+      - ./configs/dev/dev-single-node.yaml:/etc/receptor/receptor.conf:ro
+      - ./scripts:/usr/local/bin:ro
+      - receptor-sockets:/tmp/receptor
+      - receptor-work:/var/lib/receptor/work
+    command: receptor --config /etc/receptor/receptor.conf
+    networks:
+      - receptor-net
+    restart: unless-stopped
+    environment:
+      - RECEPTOR_PAYLOAD_TRACE_LEVEL=2
+    healthcheck:
+      test: ["CMD", "receptorctl", "--socket", "/tmp/receptor/dev-control.sock", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp-server
+    container_name: receptor-mcp-server
+    depends_on:
+      - receptor-dev
+    volumes:
+      - ./configs/mcp-server.yaml:/etc/mcp-server/config.yaml:ro
+      - receptor-sockets:/tmp/receptor:ro
+    command: receptor-mcp-server --config /etc/mcp-server/config.yaml
+    networks:
+      - receptor-net
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=debug
+    healthcheck:
+      test: ["CMD", "receptor-mcp-server", "--health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Development tools container
+  dev-tools:
+    image: python:3.11-slim
+    container_name: receptor-dev-tools
+    volumes:
+      - ./scripts:/workspace/scripts:ro
+      - ./examples:/workspace/examples:ro
+      - receptor-sockets:/tmp/receptor:ro
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - receptor-net
+    environment:
+      - PYTHONPATH=/workspace
+
+volumes:
+  receptor-sockets:
+    driver: local
+  receptor-work:
+    driver: local
+
+networks:
+  receptor-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

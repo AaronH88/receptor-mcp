@@ -1,0 +1,102 @@
+---
+# Production Edge Node Configuration Template
+# Minimal attack surface edge node with secure communications
+#
+# Usage: receptor --config prod-edge.yaml
+# Template variables (replace before use):
+#   - {{ .EdgeID }}: Unique edge node identifier
+#   - {{ .ControllerAddress }}: Controller node hostname/IP
+# Prerequisites:
+#   - TLS client certificates in /etc/receptor/certs/
+#   - Work verification public key in /etc/receptor/keys/
+
+# Node identification (template variable)
+- node:
+    id: prod-edge-{{ .EdgeID }}
+
+# Minimal logging for edge nodes
+- log-level:
+    level: error
+
+# Secure TLS client configuration
+- tls-client:
+    name: mesh-client
+    cert: /etc/receptor/certs/edge-client.crt
+    key: /etc/receptor/certs/edge-client.key
+    rootcas: /etc/receptor/certs/ca.crt
+
+# Secure connection to controller only (no peer connections)
+- tcp-peer:
+    address: {{ .ControllerAddress }}:8901
+    tls: mesh-client
+
+# Local control service (restricted permissions)
+- control-service:
+    service: control
+    filename: /var/run/receptor/edge-control.sock
+    permissions: 0600
+
+# Work verification for security
+- work-verification:
+    publickey: /etc/receptor/keys/work-signing.pub
+
+# Edge work types (minimal and security-focused)
+- work-command:
+    worktype: sensor-collect
+    command: /usr/bin/sensor-collector.py
+    allowruntimeparams: true
+    verifysignature: false
+    description: "Collect sensor data and telemetry"
+
+- work-command:
+    worktype: edge-inference
+    command: /usr/bin/edge-inference.py
+    allowruntimeparams: true
+    verifysignature: false
+    allowruntimestdin: true
+    description: "Lightweight ML inference on edge devices"
+
+- work-command:
+    worktype: data-forward
+    command: /usr/bin/secure-data-forwarder.py
+    allowruntimeparams: true
+    verifysignature: true
+    allowruntimestdin: true
+    description: "Securely forward data to central processing"
+
+- work-command:
+    worktype: edge-config-update
+    command: /usr/bin/edge-config-updater.sh
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Update edge configuration securely"
+
+- work-command:
+    worktype: edge-health
+    command: /usr/bin/edge-health.sh
+    allowruntimeparams: false
+    verifysignature: false
+    description: "Report edge node health status"
+
+- work-command:
+    worktype: iot-gateway
+    command: /usr/bin/iot-gateway.py
+    allowruntimeparams: true
+    verifysignature: false
+    allowruntimestdin: true
+    description: "IoT device gateway functionality"
+
+# Emergency/diagnostic work types (signed for security)
+- work-command:
+    worktype: edge-diagnostic
+    command: /usr/bin/edge-diagnostic.sh
+    allowruntimeparams: true
+    verifysignature: true
+    description: "Run diagnostic checks (admin access required)"
+
+- work-command:
+    worktype: edge-reset
+    command: /usr/bin/edge-reset.sh
+    allowruntimeparams: false
+    verifysignature: true
+    description: "Reset edge node to safe state (admin access required)"

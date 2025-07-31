@@ -1,0 +1,111 @@
+# Data Operations Work Type Definitions
+# Work types for data processing, transformation, and analysis
+# Optimized for AI and analytics workflows
+
+# Data Ingestion
+- work-command:
+    worktype: data-ingestion
+    command: /usr/bin/data-ingestor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Ingest data from various sources with configurable formats"
+
+# Data Transformation
+- work-command:
+    worktype: data-transformation
+    command: /usr/bin/data-transformer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Transform and clean data using specified rules"
+
+# Data Validation
+- work-command:
+    worktype: data-validation
+    command: /usr/bin/data-validator.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Validate data quality and schema compliance"
+
+# Data Export
+- work-command:
+    worktype: data-export
+    command: /usr/bin/data-exporter.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Export processed data to target destinations"
+
+# Stream Processing
+- work-command:
+    worktype: stream-processing
+    command: /usr/bin/stream-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Process streaming data in real-time"
+
+# Batch Processing
+- work-command:
+    worktype: batch-processing
+    command: /usr/bin/batch-processor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Process large datasets in batch mode"
+
+# Data Analysis
+- work-command:
+    worktype: data-analysis
+    command: /usr/bin/data-analyzer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Perform statistical analysis and generate insights"
+
+# Data Aggregation
+- work-command:
+    worktype: data-aggregation
+    command: /usr/bin/data-aggregator.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Aggregate data across multiple dimensions"
+
+# Data Archival
+- work-command:
+    worktype: data-archival
+    command: /usr/bin/data-archiver.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Archive data with compression and encryption"
+
+# Data Retrieval
+- work-command:
+    worktype: data-retrieval
+    command: /usr/bin/data-retriever.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: false
+    description: "Retrieve archived or stored data based on criteria"
+
+# Data Synchronization
+- work-command:
+    worktype: data-sync
+    command: /usr/bin/data-synchronizer.py
+    allowruntimeparams: true
+    allowruntimestdin: false
+    verifysignature: true
+    description: "Synchronize data between different systems"
+
+# Data Quality Assessment
+- work-command:
+    worktype: data-quality-check
+    command: /usr/bin/data-quality-checker.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Assess data quality and generate quality reports"

@@ -1,0 +1,96 @@
+# AI Workflow Work Type Definitions
+# Specialized work types for AI and machine learning workflows
+# Include in Receptor configurations as needed
+
+# AI Pipeline Execution
+- work-command:
+    worktype: ai-pipeline
+    command: /usr/bin/ai-pipeline-runner.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    verifysignature: false
+    description: "Execute AI/ML pipelines with flexible configuration"
+
+# Model Training Tasks
+- work-command:
+    worktype: model-training
+    command: /usr/bin/model-trainer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    verifysignature: true
+    description: "Train machine learning models with specified parameters"
+
+# Model Inference Tasks
+- work-command:
+    worktype: model-inference
+    command: /usr/bin/model-inference.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Run inference on trained models with input data"
+
+# Batch Inference Processing
+- work-command:
+    worktype: batch-inference
+    command: /usr/bin/batch-inference.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Process large batches of data through ML models"
+
+# Model Evaluation and Validation
+- work-command:
+    worktype: model-evaluation
+    command: /usr/bin/model-evaluator.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Evaluate model performance and generate metrics"
+
+# Hyperparameter Tuning
+- work-command:
+    worktype: hyperparameter-tuning
+    command: /usr/bin/hyperparameter-tuner.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: true
+    description: "Perform hyperparameter optimization for models"
+
+# Data Preprocessing
+- work-command:
+    worktype: data-preprocessing
+    command: /usr/bin/data-preprocessor.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Preprocess raw data for AI/ML workflows"
+
+# Feature Engineering
+- work-command:
+    worktype: feature-engineering
+    command: /usr/bin/feature-engineer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: false
+    description: "Generate and transform features for ML models"
+
+# Model Deployment
+- work-command:
+    worktype: model-deployment
+    command: /usr/bin/model-deployer.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    verifysignature: true
+    description: "Deploy trained models to serving infrastructure"
+
+# AI Orchestration (for complex multi-step workflows)
+- work-command:
+    worktype: ai-orchestration
+    command: /usr/bin/ai-orchestrator.py
+    allowruntimeparams: true
+    allowruntimestdin: true
+    allowruntimearguments: true
+    verifysignature: true
+    description: "Orchestrate complex AI workflows across multiple nodes"
